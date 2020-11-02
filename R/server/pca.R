@@ -6,6 +6,8 @@
 # Ref: http://www.statistics4u.com/fundstat_eng/cc_pca_loadscore.html#:~:text=The%20matrix%20V%20is%20usually,in%20a%20rotated%20coordinate%20system.
 # Ref: https://github.com/SurajGupta/r-source/blob/master/src/library/stats/R/prcomp.R
 # Ref: http://statmath.wu.ac.at/~hornik/QFS1/principal_component-vignette.pdf
+# Ref: http://www.stat.ucla.edu/~rgould/252w02/moreprincomp.pdf
+
 
 pca <- function(data,
                 center = TRUE,
@@ -23,7 +25,8 @@ pca <- function(data,
   sc <- attr(scaled, "scaled:scale")
   
   # Calculate Covariance Matrix
-  Covariance = cov(scaled)
+  Covariance = t(scaled)%*%(scaled) / (nrow(scaled)-1)
+#   Covariance = cov(scaled)
   # Calculate Correlation Matrix
   Correlation = cor(scaled)
   # Calculate EigenVectors and EvenenValues

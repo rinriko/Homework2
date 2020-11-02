@@ -25,8 +25,9 @@ Server <- function(input, output, session) {
     } else{
       fluidRow(
         column(12, p("Select the PCs to plot")),
-        column(6, uiOutput("pcs_plot_x")),
-        column(6,  uiOutput("pcs_plot_y")),
+        column(4, uiOutput("pcs_plot_x")),
+        column(4,  uiOutput("pcs_plot_y")),
+        column(4, uiOutput("grouping_var")),
         column(12, tags$hr())
       )
     }
@@ -81,145 +82,146 @@ Server <- function(input, output, session) {
   })
   
   output$setting_tabcard <- renderUI({
-    if(input$sidebar_menu == "pca"){
+    if (input$sidebar_menu == "pca") {
       bs4TabCard(
-      id = "setting_tabcard",
-      side = "left",
-      width = 12,
-      collapsible = TRUE,
-      collapsed = FALSE,
-      closable = FALSE,
-      
-      bs4TabPanel(
-        tabName = "Use Dataset",
-        active = TRUE,
-        fluidRow(column(
-          10,
-          selectInput(
-            inputId = "dataset_pca",
-            label = "Choose a dataset:",
-            choices = c("Please select", "rock", "pressure", "cars")
-          )
-        ),
-        column(
-          2,
-          actionBttn(
-            inputId = "dataset_btn_pca",
-            label = "Process",
-            style = "simple",
-            color = "success"
-          )
-        ))
-      ),
-      bs4TabPanel(
-        tabName = "Import File",
-        active = FALSE,
-        fluidRow(column(
-          10,
-          fileInput(
-            "file_pca",
-            "Choose CSV File",
-            multiple = FALSE,
-            accept = c(
-              "text/csv",
-              "text/comma-separated-values,text/plain",
-              ".csv"
-            )
-          )
-        ),
-        column(
-          2,
-          actionBttn(
-            inputId = "file_btn_pca",
-            label = "Process",
-            style = "simple",
-            color = "success"
-          )
-        )),
-        tags$hr(),
-        tags$h5("Settings"),
-        fluidRow(
-          column(
-            4,
-            radioButtons(
-              inputId = 'header',
-              label = 'Header',
-              choices = c(
-                'Columns have headers' = 'Yes',
-                'Columns do not have headers' =
-                  'No'
-              ),
-              selected = 'Yes'
+        id = "setting_tabcard",
+        side = "left",
+        width = 12,
+        collapsible = TRUE,
+        collapsed = FALSE,
+        closable = FALSE,
+        
+        bs4TabPanel(
+          tabName = "Use Dataset",
+          active = TRUE,
+          fluidRow(column(
+            10,
+            selectInput(
+              inputId = "dataset_pca",
+              label = "Choose a dataset:",
+              choices = c("Please select", "rock", "pressure", "cars")
             )
           ),
-          column(4, radioButtons(
-            'sep',
-            'Separator',
-            c(
-              Comma = ',',
-              Semicolon = ';',
-              Tab = '\t'
-            ),
-            ','
-          )),
-          column(4, radioButtons(
-            'quote',
-            'Quote',
-            c(
-              None = '',
-              'Double Quote' = '"',
-              'Single Quote' = "'"
-            ),
-            '"'
+          column(
+            2,
+            actionBttn(
+              inputId = "dataset_btn_pca",
+              label = "Process",
+              style = "simple",
+              color = "success"
+            )
           ))
-        )
-      ),
-      bs4TabPanel(
-        tabName = "PCA Settings",
-        active = FALSE,
-        p("Select options for the PCA computation (we are using the pca manual function here)"),
-        fluidRow(
-          column(
-            4,
-            radioButtons(
-              inputId = 'center',
-              label = 'Center',
-              choices = c(
-                'Shift variables to be zero centered' = TRUE,
-                'Do not shift variables' = FALSE
-              ),
-              selected = TRUE
-            ),
-            radioButtons(
-              'scale.',
-              'Scale',
-              choices = c(
-                'Scale variables to have unit variance' = TRUE,
-                'Do not scale variables' = FALSE
-              ),
-              selected = FALSE
+        ),
+        bs4TabPanel(
+          tabName = "Import File",
+          active = FALSE,
+          fluidRow(column(
+            10,
+            fileInput(
+              "file_pca",
+              "Choose CSV File",
+              multiple = FALSE,
+              accept = c(
+                "text/csv",
+                "text/comma-separated-values,text/plain",
+                ".csv"
+              )
             )
           ),
           column(
-            4,
-            radioButtons(
-              'showall',
-              'Select features to obtains new data',
-              choices = c(
-                'Show all featurees' = TRUE,
-                'Select the minimum percent of data to obtain the number of features' = FALSE
-              ),
-              selected = FALSE
+            2,
+            actionBttn(
+              inputId = "file_btn_pca",
+              label = "Process",
+              style = "simple",
+              color = "success"
+            )
+          )),
+          tags$hr(),
+          tags$h5("Settings"),
+          fluidRow(
+            column(
+              4,
+              radioButtons(
+                inputId = 'header',
+                label = 'Header',
+                choices = c(
+                  'This file have headers' = 'Yes',
+                  'This file does not have headers' =
+                    'No'
+                ),
+                selected = 'Yes'
+              )
             ),
-            uiOutput("select_threshold_percent")
+            column(4, radioButtons(
+              'sep',
+              'Separator',
+              c(
+                Comma = ',',
+                Semicolon = ';',
+                Tab = '\t'
+              ),
+              ','
+            )),
+            column(4, radioButtons(
+              'quote',
+              'Quote',
+              c(
+                None = '',
+                'Double Quote' = '"',
+                'Single Quote' = "'"
+              ),
+              '"'
+            ))
+          )
+        ),
+        bs4TabPanel(
+          tabName = "PCA Settings",
+          active = FALSE,
+          p(
+            "Select options for the PCA computation (we are using the pca manual function here)"
           ),
-          column(4, uiOutput("grouping_var"))
+          fluidRow(
+            column(
+              6,
+              radioButtons(
+                inputId = 'center',
+                label = 'Center',
+                choices = c(
+                  'Shift variables to be zero centered' = TRUE,
+                  'Do not shift variables' = FALSE
+                ),
+                selected = TRUE
+              ),
+              radioButtons(
+                'scale.',
+                'Scale',
+                choices = c(
+                  'Scale variables to have unit variance' = TRUE,
+                  'Do not scale variables' = FALSE
+                ),
+                selected = FALSE
+              )
+            ),
+            column(
+              6,
+              radioButtons(
+                'showall',
+                'Select features to obtains new data',
+                choices = c(
+                  'Show all featurees' = TRUE,
+                  'Select the minimum percent of data to obtain the number of features' = FALSE
+                ),
+                selected = FALSE
+              ),
+              uiOutput("select_threshold_percent")
+            )
+          )
         )
       )
-    )
     }
   })
-
+  
   # display a summary of the CSV contents
   output$summary_plot <-  renderDataTable({
     if (is.null(dataInput())) {
@@ -272,7 +274,7 @@ Server <- function(input, output, session) {
         ), column(12, tags$hr()))
       
     }
-  }) 
+  })
   output$select_threshold_percent <- renderUI({
     if (input$showall == FALSE) {
       sliderInput(
@@ -379,26 +381,11 @@ Server <- function(input, output, session) {
   
   output$grouping_var <- renderUI({
     if (is.null(dataInput())) {
-      p("Available when import data or select dataset.")
+      return(NULL)
     }
     else{
       dataset <- dataInput()
-      # for grouping we want to see only cols where the number of unique values are less than 10% the number of observations
-      grouping_cols <-
-        sapply(seq(1, ncol(dataset)), function(i)
-          length(unique(dataset[, i])) < nrow(dataset) / 10)
-      
-      dataset_group_cols <- dataset[, grouping_cols, drop = FALSE]
       p("Select the grouping variable.")
-      p(
-        "Only variables where the number of unique values is less than 10% of the total number of observations are shown here (because seeing groups with 1-2 observations is usually not very useful)."
-      )
-      # selectInput(
-      #   inputId = "grouping_var",
-      #   label = "Grouping variable:",
-      #   choices = c("None", names(dataset_group_cols))
-      # )
-
       selectInput(
         inputId = "grouping_var",
         label = "Grouping variable:",
@@ -458,7 +445,7 @@ Server <- function(input, output, session) {
         
         print(PCs)
         ggplot(eig_df, aes(
-          reorder(PCs, -pcaObject$eigenvalues),
+          reorder(PCs,-pcaObject$eigenvalues),
           pcaObject$eigenvalues
         )) +
           geom_bar(stat = "identity",
@@ -485,53 +472,32 @@ Server <- function(input, output, session) {
           is.null(input$pcs_plot_y)) {
         return(NULL)
       } else{
-        x <- match(input$pcs_plot_x,
-                   colnames(pcaObject$finalData))
+        x <- match(input$pcs_plot_x, colnames(pcaObject$finalData))
         x <- as.numeric(x)
-        y <-
-          match(input$pcs_plot_y,
-                colnames(pcaObject$finalData))
+        y <- match(input$pcs_plot_y, colnames(pcaObject$finalData))
         y <- as.numeric(y)
-        if (is.null(input$grouping_var)) {
-          # ggbiplot_pca(
-          #   pcaObject,
-          #   obs.scale = 1,
-          #   var.scale = 1,
-          #   labels = rownames(pcaObject),
-          #   choices = c(x, y),
-          #   ellipse = TRUE,
-          #   circle = TRUE
-          # ) + scale_color_discrete(name = '') + theme(legend.direction = 'horizontal',
-          #                                             legend.position = 'top')
+        if (is.null(input$grouping_var) ||
+            input$grouping_var == "None") {
           if (is.null(dataInput())) {
             return(NULL)
           } else{
             dataset <- dataInput()
             data <- na.omit(dataset)
-            autoplot_pca(pcaObject, data = data, 
-         loadings = TRUE, loadings.colour = 'blue',
-         loadings.label = TRUE, loadings.label.size = 3, x=x,y=y)
-          }
-        }
-        else if (input$grouping_var == "None") {
-          # ggbiplot_pca(
-          #   pcaObject,
-          #   obs.scale = 1,
-          #   var.scale = 1,
-          #   labels = rownames(pcaObject),
-          #   choices = c(x, y),
-          #   ellipse = TRUE,
-          #   circle = TRUE
-          # ) + scale_color_discrete(name = '') + theme(legend.direction = 'horizontal',
-          #                                             legend.position = 'top')
-          if (is.null(dataInput())) {
-            return(NULL)
-          } else{
-            dataset <- dataInput()
-            data <- na.omit(dataset)
-            autoplot_pca(pcaObject, data = data, 
-         loadings = TRUE, loadings.colour = 'blue',
-         loadings.label = TRUE, loadings.label.size = 3, x=x,y=y)
+            if (x != y) {
+              autoplot_pca(
+                pcaObject,
+                data = data,
+                loadings = TRUE,
+                loadings.colour = 'blue',
+                loadings.label = TRUE,
+                loadings.label.size = 3,
+                x = x,
+                y = y
+              )
+            } else{
+              return(NULL)
+            }
+            
           }
         }
         else{
@@ -540,23 +506,22 @@ Server <- function(input, output, session) {
           } else{
             dataset <- dataInput()
             data <- na.omit(dataset)
-            grouping <- data[input$grouping_var]
-            colnames(grouping) <- c("lists")
-
-            autoplot_pca(pcaObject, data = data, colour = input$grouping_var,
-         loadings = TRUE, loadings.colour = 'blue',
-         loadings.label = TRUE, loadings.label.size = 3, x=x,y=y)
-            # ggbiplot_pca(
-            #   pcaObject,
-            #   obs.scale = 1,
-            #   var.scale = 1,
-            #   labels = rownames(pcaObject),
-            #   choices = c(x, y),
-            #   groups = grouping$lists,
-            #   ellipse = TRUE,
-            #   circle = TRUE
-            # ) + scale_color_discrete(name = '') + theme(legend.direction = 'horizontal',
-            #                                             legend.position = 'top')
+            grouping <- input$grouping_var
+            if (x != y) {
+              autoplot_pca(
+                pcaObject,
+                data = data,
+                colour = grouping,
+                loadings = TRUE,
+                loadings.colour = 'blue',
+                loadings.label = TRUE,
+                loadings.label.size = 3,
+                x = x,
+                y = y
+              )
+            } else{
+              return(NULL)
+            }
           }
         }
       }
