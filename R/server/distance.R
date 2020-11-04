@@ -1,4 +1,5 @@
-distance <- function(x1, x2, type = 1) {
+# Ref: https://rpubs.com/dherrero12/543854
+distance <- function(x1, x2, type = 1,eigenvalues) {
   x1 <- matrix(x1, length(x1), 1)
   x2 <- matrix(x2, length(x2), 1)
 #   Euclidean (type=1)

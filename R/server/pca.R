@@ -28,7 +28,7 @@ pca <- function(data,
   Covariance = t(scaled)%*%(scaled) / (nrow(scaled)-1)
 #   Covariance = cov(scaled)
   # Calculate Correlation Matrix
-  Correlation = cor(scaled)
+  # Correlation = cor(scaled)
   # Calculate EigenVectors and EvenenValues
   eig          <- eigen(Covariance)
   Eigenvalues  <- eig$values
@@ -42,11 +42,11 @@ pca <- function(data,
     round(cumsum(Eigenvalues) / sum(Eigenvalues) * 100, digits = 2)
   
   featureVector <- Eigenvectors
-  if (!showall) {
+  if (!as.logical(showall)) {
     ## we get rank at least one even for a 0 matrix.
     rank <- min(which(percentage >= threshold_percent))
     if (rank < ncol(data)) {
-      featureVector <- featureVector[, 1L:rank]
+      featureVector <- featureVector[, 1:rank]
     }
   }
   # Deriving the new data set.
@@ -71,7 +71,7 @@ pca <- function(data,
       eigenvectors = Eigenvectors,
       finalData = as.data.frame(finalData),
       covariance = Covariance,
-      correlation = Correlation,
+      # correlation = Correlation,
       center = if (is.null(mean))
         FALSE
       else
