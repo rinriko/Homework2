@@ -32,20 +32,24 @@ pca_eigenfaces <- function(data,
   ## we get rank at least one even for a 0 matrix.
   rank <- as.numeric(min(which(percentage >= threshold_percent)))
   Eigenfaces <- Eigenvectors
-  scaling    <- diag(Eigenvalues ^ (-1 / 2)) / (sqrt(nrow(scaled) - 1))
-    Eigenfaces <- t(scaled) %*% Eigenvectors %*% scaling
+  scaling    <-
+    diag(Eigenvalues ^ (-1 / 2)) / (sqrt(nrow(scaled) - 1))
+  Eigenfaces <- t(scaled) %*% Eigenvectors %*% scaling
   if (!as.logical(showall)) {
     if (rank < ncol(Eigenvectors)) {
-      if(rank == 1){
-      Eigenvectors <- matrix(Eigenvectors[, 1:rank])
-      scaling    <- matrix(Eigenvalues[1:rank]^(-1 / 2)) / (sqrt(nrow(scaled) - 1))
-
-      Eigenfaces <- t(scaled) %*% Eigenvectors %*% scaling
+      if (rank == 1) {
+        Eigenvectors <- matrix(Eigenvectors[, 1:rank])
+        scaling    <-
+          matrix(Eigenvalues[1:rank] ^ (-1 / 2)) / (sqrt(nrow(scaled) - 1))
+        
+        Eigenfaces <- t(scaled) %*% Eigenvectors %*% scaling
       }
       else{
-      scaling    <- diag(Eigenvalues[1:rank]^(-1 / 2)) / (sqrt(nrow(scaled) - 1))
-
-      Eigenfaces <- t(scaled) %*% Eigenvectors[, 1:rank] %*% scaling
+        scaling    <-
+          diag(Eigenvalues[1:rank] ^ (-1 / 2)) / (sqrt(nrow(scaled) - 1))
+        
+        Eigenfaces <-
+          t(scaled) %*% Eigenvectors[, 1:rank] %*% scaling
       }
       
       # print(Eigenvectors)

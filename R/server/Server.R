@@ -378,7 +378,9 @@ Server <- function(input, output, session) {
                 ),
                 selected = FALSE
               ),
-              p('Select the minimum percent of data to obtain the number of features'),
+              p(
+                'Select the minimum percent of data to obtain the number of features'
+              ),
               # radioButtons(
               #   'showall_img',
               #   'Select features to obtains new data',
@@ -389,12 +391,12 @@ Server <- function(input, output, session) {
               #   selected = FALSE
               # ),
               sliderInput(
-        "select_threshold_percent_img",
-        "Minimum Percentage:",
-        min = 1,
-        max = 100,
-        value = 90
-      )
+                "select_threshold_percent_img",
+                "Minimum Percentage:",
+                min = 1,
+                max = 100,
+                value = 90
+              )
             ),
             column(
               6,
@@ -495,7 +497,7 @@ Server <- function(input, output, session) {
   #       max = 100,
   #       value = 90
   #     )
-      
+  
   #   }
   # })
   # corr plot
@@ -656,7 +658,7 @@ Server <- function(input, output, session) {
         
         # print(PCs)
         ggplot(eig_df, aes(
-          reorder(PCs,-pcaObject$eigenvalues),
+          reorder(PCs, -pcaObject$eigenvalues),
           pcaObject$eigenvalues
         )) +
           geom_bar(stat = "identity",
@@ -893,8 +895,9 @@ Server <- function(input, output, session) {
       if (is.null(eigenFace()) == FALSE) {
         pcaObject <- eigenFace()
         pca_img <- pcaObject$eigenfaces
-        max_page <- as.numeric(ceiling(ncol(pcaObject$eigenfaces) / 100))
-
+        max_page <-
+          as.numeric(ceiling(ncol(pcaObject$eigenfaces) / 100))
+        
         paste(index3(), "of", max_page, sep = "  ")
       }
     }
@@ -957,10 +960,18 @@ Server <- function(input, output, session) {
       img <- r$img
       label <- r$label
       pca_result <-
-        pca_eigenfaces(img,
-                           center = if(is.null(input$center_img)) TRUE else as.logical(input$center_img),
-                           scale. = if(is.null(input$scale._img)) FALSE else as.logical(input$scale._img),
-                       showall = TRUE)
+        pca_eigenfaces(
+          img,
+          center = if (is.null(input$center_img))
+            TRUE
+          else
+            as.logical(input$center_img),
+          scale. = if (is.null(input$scale._img))
+            FALSE
+          else
+            as.logical(input$scale._img),
+          showall = TRUE
+        )
       return(pca_result)
     }
   })
@@ -974,20 +985,32 @@ Server <- function(input, output, session) {
       img <- r$img
       label <- r$label
       s <- 123
-      if(is.null(input$seed_input)) s <- 123 else s<-input$seed_input
+      if (is.null(input$seed_input))
+        s <- 123
+      else
+        s <- input$seed_input
       set.seed(s)
       index = sort(sample(nrow(img), nrow(img) * input$training_percent /
                             100))
-      train <- img[index, ]
-      test <- img[-index, ]
-      train_label <- label[index, ]
-      test_label <- label[-index, ]
+      train <- img[index,]
+      test <- img[-index,]
+      train_label <- label[index,]
+      test_label <- label[-index,]
       pca_result <-
         pca_eigenfaces(
           train,
-          center = if(is.null(input$center_img)) TRUE else as.logical(input$center_img),
-          scale. = if(is.null(input$scale._img)) FALSE else as.logical(input$scale._img),
-          threshold_percent = if (is.null(input$select_threshold_percent_img)) 90 else input$select_threshold_percent_img ,
+          center = if (is.null(input$center_img))
+            TRUE
+          else
+            as.logical(input$center_img),
+          scale. = if (is.null(input$scale._img))
+            FALSE
+          else
+            as.logical(input$scale._img),
+          threshold_percent = if (is.null(input$select_threshold_percent_img))
+            90
+          else
+            input$select_threshold_percent_img ,
           showall = FALSE
         )
       pca_result$train <- train
@@ -995,25 +1018,25 @@ Server <- function(input, output, session) {
       pca_result$index <- index
       pca_result$train_label <- train_label
       pca_result$test_label <- test_label
-      pca_result$new_train <- data.frame(labels = train_label, data = pca_result$finalData)
-data_new_test <- scale(test, center = pca_result$center, scale = pca_result$scale) %*%
-            pca_result$eigenfaces
+      pca_result$new_train <-
+        data.frame(labels = train_label, data = pca_result$finalData)
+      data_new_test <-
+        scale(test, center = pca_result$center, scale = pca_result$scale) %*%
+        pca_result$eigenfaces
       pca_result$new_test <-
-        data.frame(
-          labels = test_label,
-          data = data_new_test
-        )
+        data.frame(labels = test_label,
+                   data = data_new_test)
       return(pca_result)
     }
   })
   
   output$cumvar_img_plot <- renderPlot({
-    if (is.null(imgInput())==FALSE) {
+    if (is.null(imgInput()) == FALSE) {
       r <- imgInput()
       df <- r$df
       img <- r$img
       label <- r$label
-      if (is.null(eigenFaceforPlot())==FALSE) {
+      if (is.null(eigenFaceforPlot()) == FALSE) {
         pcaObject <- eigenFaceforPlot()
         cumvar <- round(pcaObject$summary.percent, 1)
         return(
@@ -1068,7 +1091,7 @@ data_new_test <- scale(test, center = pca_result$center, scale = pca_result$scal
             # add the average face
             show_img(t(apply(
               matrix(
-                as.numeric(pca_img[i, ] + averagefaces),
+                as.numeric(pca_img[i,] + averagefaces),
                 nrow = sqrt(ncol(img)),
                 ncol = sqrt(ncol(img)),
                 byrow = T
@@ -1138,13 +1161,13 @@ data_new_test <- scale(test, center = pca_result$center, scale = pca_result$scal
   }, deleteFile = TRUE)
   
   output$imgOutputEig <- renderImage({
-    if (is.null(imgInput())==FALSE) {
+    if (is.null(imgInput()) == FALSE) {
       r <- imgInput()
       r <- imgInput()
       df <- r$df
       img <- r$img
       label <- r$label
-      if (is.null(eigenFace())==FALSE) {
+      if (is.null(eigenFace()) == FALSE) {
         pcaObject <- eigenFace()
         pca_img <- pcaObject$eigenfaces
         # print(pca_img)
@@ -1190,10 +1213,8 @@ data_new_test <- scale(test, center = pca_result$center, scale = pca_result$scal
   }, deleteFile = TRUE)
   
   output$select_pic_no_train <- renderUI({
-    if (is.null(imgInput())==FALSE) {
-      
-      if (is.null(eigenFace())==FALSE) {
-        
+    if (is.null(imgInput()) == FALSE) {
+      if (is.null(eigenFace()) == FALSE) {
         pcaObj <- eigenFace()
         index <- as.vector(pcaObj$index)
         # print(index)
@@ -1210,74 +1231,77 @@ data_new_test <- scale(test, center = pca_result$center, scale = pca_result$scal
       }
     }
   })
-
+  
   output$select_pic_no_test <- renderUI({
-    if (is.null(imgInput())==FALSE) {
+    if (is.null(imgInput()) == FALSE) {
       r <- imgInput()
       df <- r$df
       img <- r$img
       label <- r$label
-      if (is.null(eigenFace())==FALSE) {
+      if (is.null(eigenFace()) == FALSE) {
         pcaObj <- eigenFace()
         index <- as.vector(pcaObj$index)
         no_test <- c(1:nrow(img))
         no_test <- no_test[-index]
         # print(index)
-        fluidRow(column(12, p("Please select picture no.# to recognize")),
-                 column(
-                   12,
-                   selectInput(
-                     inputId = "select_pic_no_test",
-                     label = "Picture No.#:",
-                     choices = no_test
-                   )
-                 ),
-                 column(12, tags$hr()))
+        fluidRow(column(12, p(
+          "Please select picture no.# to recognize"
+        )),
+        column(
+          12,
+          selectInput(
+            inputId = "select_pic_no_test",
+            label = "Picture No.#:",
+            choices = no_test
+          )
+        ),
+        column(12, tags$hr()))
       }
     }
   })
   
-
+  
   output$n_fold <- renderUI({
-    if (is.null(imgInput())==FALSE) {
+    if (is.null(imgInput()) == FALSE) {
       r <- imgInput()
       df <- r$df
       img <- r$img
       label <- r$label
       no_fold <- which(nrow(img) %% 1:20 == 0)[-1]
-        fluidRow(column(12, p("Please number of fold for n-fold cross validation.")),
-                 column(
-                   12,
-                   selectInput(
-                     inputId = "n_fold",
-                     label = "N-fold:",
-                     choices = no_fold
-                   )
-                 ))
+      fluidRow(column(12, p(
+        "Please number of fold for n-fold cross validation."
+      )),
+      column(
+        12,
+        selectInput(
+          inputId = "n_fold",
+          label = "N-fold:",
+          choices = no_fold
+        )
+      ))
       
     }
   })
-
-    output$n_repetition <- renderUI({
-
-    if (is.null(imgInput())==FALSE) {
-        fluidRow(column(12, p("Please number of Repetition for evaluation.")),
-                 column(
-                   12,
-                   selectInput(
-                     inputId = "n_repetition",
-                     label = "Number of repetition:",
-                     choices = 1:10
-                   )
-                 ))
+  
+  output$n_repetition <- renderUI({
+    if (is.null(imgInput()) == FALSE) {
+      fluidRow(column(12, p(
+        "Please number of Repetition for evaluation."
+      )),
+      column(
+        12,
+        selectInput(
+          inputId = "n_repetition",
+          label = "Number of repetition:",
+          choices = 1:10
+        )
+      ))
     }
   })
-
+  
   output$projection <- renderPlot({
-    if (is.null(imgInput())==FALSE) {
-      
-      if (is.null(eigenFace())==FALSE) {
-        
+    if (is.null(imgInput()) == FALSE) {
+      if (is.null(eigenFace()) == FALSE) {
         pcaObj <- eigenFace()
         index <- as.vector(pcaObj$index)
         df <- pcaObj$finalData
@@ -1286,92 +1310,126 @@ data_new_test <- scale(test, center = pca_result$center, scale = pca_result$scal
         print(selectd)
         pic_no <- match(selectd, as.vector(index))
         pic_no <- as.numeric(pic_no)
-        if(is.null(input$select_pic_no_train)==FALSE){
+        if (is.null(input$select_pic_no_train) == FALSE) {
           barplot(
-          as.matrix(df[pic_no, ]),
-          main = "projection coefficients in eigen space",
-          col = "blue",
-          axisnames = FALSE
-        )
+            as.matrix(df[pic_no,]),
+            main = "projection coefficients in eigen space",
+            col = "blue",
+            axisnames = FALSE
+          )
         }
         
       }
     }
   })
-
-
-  output$classify_result <- renderDataTable({
-
-    if (is.null(imgInput())==FALSE) {
-      if (is.null(eigenFace())==FALSE) {
-        pcaObject <- eigenFace()
-  type = c("Euclidean","Mahalanobis","Manhattan")
-  accuracy <- vector("numeric", length(type))
-  for(i in c(1:3)){
-
-    accuracy[i] <- classify(pcaObject$new_train,pcaObject$new_test,i,pcaObject$eigenvalues)*100
-    # print(classify(pcaObject$new_train,pcaObject$new_test,i,pcaObject$eigenvalues))
-  }
   
-      # print(classify(pcaObject$new_train,pcaObject$new_test,1,pcaObject$eigenvalues))
-      # print(classify(pcaObject$new_train,pcaObject$new_test,2,pcaObject$eigenvalues))
-      # print(classify(pcaObject$new_train,pcaObject$new_test,3,pcaObject$eigenvalues))
-      # print(classify(pca_result$new_train,pca_result$new_test,2))
-      # print(classify(pca_result$new_train,pca_result$new_test,3))
-      
-  result <- data.frame(type =type, accuracy = accuracy)
+  
+  output$classify_result <- renderDataTable({
+    if (is.null(imgInput()) == FALSE) {
+      if (is.null(eigenFace()) == FALSE) {
+        pcaObject <- eigenFace()
+        type = c("Euclidean", "Mahalanobis", "Manhattan")
+        accuracy <- vector("numeric", length(type))
+        for (i in c(1:3)) {
+          accuracy[i] <-
+            classify(pcaObject$new_train,
+                     pcaObject$new_test,
+                     i,
+                     pcaObject$eigenvalues) * 100
+        }
+        result <- data.frame(type = type, accuracy = accuracy)
       }
     }
   })
-
+  
   output$recognize_result <- renderDataTable({
-     if (is.null(imgInput())==FALSE) {
-
+    if (is.null(imgInput()) == FALSE) {
       r <- imgInput()
       df <- r$df
       img <- r$img
       label <- r$label
-      if (is.null(eigenFace())==FALSE) {
+      if (is.null(eigenFace()) == FALSE) {
         pcaObject <- eigenFace()
         test_label <- pcaObject$test_label
         index <- as.vector(pcaObject$index)
         no_test <- c(1:nrow(img))
         no_test <- no_test[-index]
         pred <- list()
-
-    pred$Euclidean <- recognize(pcaObject$new_train,pcaObject$new_test,1,pcaObject$eigenvalues)
-    pred$Mahalanobis <- recognize(pcaObject$new_train,pcaObject$new_test,2,pcaObject$eigenvalues)
-    pred$Manhattan <- recognize(pcaObject$new_train,pcaObject$new_test,3,pcaObject$eigenvalues)
-result<- NULL
-  if(is.null(input$select_pic_no_test)==FALSE){
-        selectd <- c(as.numeric(input$select_pic_no_test))
-        pic_no <- match(selectd, as.vector(no_test))
-        pic_no <- as.numeric(pic_no)
-        print(pic_no)
-      labels <- c(test_label[pic_no],test_label[pic_no],test_label[pic_no])
-      type = c("Euclidean","Mahalanobis","Manhattan")
-      prediction <- c(pred$Euclidean[pic_no],pred$Mahalanobis[pic_no],pred$Manhattan[pic_no])
-      compare <- labels==prediction
-      # print(labels)
-      # print(type)
-      # print(prediction)
-      # print(compare)
-  result <- data.frame(type =type, labels = labels,prediction=prediction,compare=compare)
-  
-  }
-  return(result)
+        
+        pred$Euclidean <-
+          recognize(pcaObject$new_train,
+                    pcaObject$new_test,
+                    1,
+                    pcaObject$eigenvalues)
+        pred$Mahalanobis <-
+          recognize(pcaObject$new_train,
+                    pcaObject$new_test,
+                    2,
+                    pcaObject$eigenvalues)
+        pred$Manhattan <-
+          recognize(pcaObject$new_train,
+                    pcaObject$new_test,
+                    3,
+                    pcaObject$eigenvalues)
+        result <- NULL
+        if (is.null(input$select_pic_no_test) == FALSE) {
+          selectd <- c(as.numeric(input$select_pic_no_test))
+          pic_no <- match(selectd, as.vector(no_test))
+          pic_no <- as.numeric(pic_no)
+          print(pic_no)
+          labels <-
+            c(test_label[pic_no], test_label[pic_no], test_label[pic_no])
+          type = c("Euclidean", "Mahalanobis", "Manhattan")
+          prediction <-
+            c(pred$Euclidean[pic_no],
+              pred$Mahalanobis[pic_no],
+              pred$Manhattan[pic_no])
+          compare <- labels == prediction
+          result <-
+            data.frame(
+              type = type,
+              labels = labels,
+              prediction = prediction,
+              compare = compare
+            )
+          
+        }
+        return(result)
       }
-     }
+    }
   })
-
+  
   output$eva <- renderDataTable({
-    if (is.null(imgInput())==FALSE) {
+    if (is.null(imgInput()) == FALSE) {
       data <- imgInput()
-      if(!is.null(input$n_fold) && !is.null(input$n_repetition) && !is.null(input$seed_input) && !is.null(input$center_img) && !is.null(input$scale._img) && !is.null(input$select_threshold_percent_img)){
-        accuracy <- n_fold_cross_validation(data=data, n_fold=as.numeric(input$n_fold), n_repetition=as.numeric(input$n_repetition), seed_input=as.numeric(input$seed_input), center=as.logical(input$center_img),scale. = as.logical(input$scale._img),threshold=as.numeric(input$select_threshold_percent_img))
+      if (!is.null(input$n_fold) &&
+          !is.null(input$n_repetition) &&
+          !is.null(input$seed_input) &&
+          !is.null(input$center_img) &&
+          !is.null(input$scale._img) &&
+          !is.null(input$select_threshold_percent_img)) {
+        accuracy <-
+          n_fold_cross_validation(
+            data = data,
+            n_fold = as.numeric(input$n_fold),
+            n_repetition = as.numeric(input$n_repetition),
+            seed_input = as.numeric(input$seed_input),
+            center = as.logical(input$center_img),
+            scale. = as.logical(input$scale._img),
+            threshold = as.numeric(input$select_threshold_percent_img)
+          )
         return(accuracy)
-      }else{
-        accuracy <- n_fold_cross_validation(data=data, n_fold=min(which(nrow(img) %% 1:20 == 0)[-1]), n_repetition=1, seed_input=123, center=TRUE,scale. = FALSE,threshold=90)
+      } else{
+        accuracy <-
+          n_fold_cross_validation(
+            data = data,
+            n_fold = min(which(nrow(img) %% 1:20 == 0)[-1]),
+            n_repetition = 1,
+            seed_input = 123,
+            center = TRUE,
+            scale. = FALSE,
+            threshold = 90
+          )
         return(accuracy)
       }
     }

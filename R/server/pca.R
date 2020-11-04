@@ -17,7 +17,7 @@ pca <- function(data,
                 ...)
 {
   chkDots(...)
-  data <- na.omit(data[,sapply(data,is.numeric)])
+  data <- na.omit(data[, sapply(data, is.numeric)])
   data <- as.matrix(data)
   scaled <-
     scale(data, center = center, scale = scale.)
@@ -25,8 +25,8 @@ pca <- function(data,
   sc <- attr(scaled, "scaled:scale")
   
   # Calculate Covariance Matrix
-  Covariance = t(scaled)%*%(scaled) / (nrow(scaled)-1)
-#   Covariance = cov(scaled)
+  Covariance = t(scaled) %*% (scaled) / (nrow(scaled) - 1)
+  #   Covariance = cov(scaled)
   # Calculate Correlation Matrix
   # Correlation = cor(scaled)
   # Calculate EigenVectors and EvenenValues
@@ -64,8 +64,9 @@ pca <- function(data,
   colnames(summary) <- paste0("PC", seq_len(ncol(summary)))
   
   r <-
-    list(sdev = sqrt(Eigenvalues), 
-    rotation = Eigenvectors,
+    list(
+      sdev = sqrt(Eigenvalues),
+      rotation = Eigenvectors,
       x = as.matrix(finalData),
       eigenvalues = Eigenvalues,
       eigenvectors = Eigenvectors,

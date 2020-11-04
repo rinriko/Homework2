@@ -4,7 +4,6 @@ Body <- function() {
     br(),
     # First Panel
     uiOutput("setting_tabcard"),
-    # uiOutput("setting_tabcard_eig"),
     # Second Panel
     bs4TabItems(
       bs4TabItem(
@@ -91,9 +90,9 @@ Body <- function() {
             tags$hr(),
             fluidRow(
               column(1, offset = 0, uiOutput("previous_1")),
-              column(4,),
+              column(4, ),
               column(2, textOutput("pages1")),
-              column(4,),
+              column(4, ),
               column(1, offset = 0, uiOutput("next_1")),
               column(2, ""),
               column(8, imageOutput("imgInputData")),
@@ -129,9 +128,9 @@ Body <- function() {
             tags$hr(),
             fluidRow(
               column(1, offset = 0, uiOutput("previous_2")),
-              column(4,),
+              column(4, ),
               column(2, textOutput("pages2")),
-              column(4,),
+              column(4, ),
               column(1, offset = 0, uiOutput("next_2")),
               column(2, ""),
               column(8, imageOutput("imgOutputEig")),
@@ -146,9 +145,9 @@ Body <- function() {
             tags$hr(),
             fluidRow(
               column(1, offset = 0, uiOutput("previous_3")),
-              column(4,),
+              column(4, ),
               column(2, textOutput("pages3")),
-              column(4,),
+              column(4, ),
               column(1, offset = 0, uiOutput("next_3")),
               column(2, ""),
               column(8, imageOutput("imgOutputTraining")),
@@ -165,23 +164,29 @@ Body <- function() {
             p("Here is the projection of picture numbere X into eigen space"),
             shiny::div(plotOutput("projection"))
           ),
-          bs4TabPanel(tabName = "Result", 
+          bs4TabPanel(
+            tabName = "Result of Classification",
             p("It may need a few times to present when analyzing large datasets."),
             tags$hr(),
             p("Here is the result from classification"),
-            shiny::div(DT::dataTableOutput("classify_result"))),
-          bs4TabPanel(tabName = "Recognize",
+            shiny::div(DT::dataTableOutput("classify_result"))
+          ),
+          bs4TabPanel(
+            tabName = "Recognize",
             p("It may need a few times to present when analyzing large datasets."),
             tags$hr(),
             uiOutput("select_pic_no_test"),
             p("Here is the result from recognization"),
-            shiny::div(DT::dataTableOutput("recognize_result"))),
-          bs4TabPanel(tabName = "Evaluation", 
+            shiny::div(DT::dataTableOutput("recognize_result"))
+          ),
+          bs4TabPanel(
+            tabName = "Evaluation with N-fold cross validation",
             p("It may need a few times to present when analyzing large datasets."),
             tags$hr(),
-            fluidRow(column(6,uiOutput("n_fold")), column(6,uiOutput("n_repetition"))),
+            fluidRow(column(6, uiOutput("n_fold")), column(6, uiOutput("n_repetition"))),
             tags$hr(),
-            shiny::div(DT::dataTableOutput("eva")))
+            shiny::div(DT::dataTableOutput("eva"))
+          )
         )
       )
     )
