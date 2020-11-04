@@ -1,87 +1,77 @@
 #Ref :https://github.com/benmarwick/Interactive_PCA_Explorer
 options(shiny.maxRequestSize = 30 * 1024 ^ 2)
 Server <- function(input, output, session) {
-  observe({
-    print(input)
-    print("file")
-    print(input$file_eig)
-    print("dataset_pca")
-    print(input$dataset_pca)
-    print(input$grouping_var)
-  })
-  
+  # ======================== Variables ============================================
+  # ------------------------- PCA --------------------------------
   values <- reactiveValues(check_file = NULL, check_img = NULL)
-  
+  # ----------------------- EigenFace --------------------------
+  index1 <- reactiveVal(1)
+  index2 <- reactiveVal(1)
+  index3 <- reactiveVal(1)
+  # ====================================================================================
+
+  # ======================== Event ============================================
+  # ------------------------- PCA --------------------------------
   observeEvent(input$dataset_btn_pca, {
     values$check_file = FALSE
     values$check_img = FALSE
   })
-  
-  observeEvent(input$dataset_btn_eig, {
-    values$check_img = TRUE
-    values$check_file = FALSE
-  })
-  
-  # observeEvent(input$file_eig, {
-  #   print(input$file_eig)
-  # })
-  
   observeEvent(input$file_btn_pca, {
     values$check_file = TRUE
     values$check_img = FALSE
   })
-  
-  output$select_pc_plot <- renderUI({
-    if (is.null(pcaObjforPlot())) {
-      return(NULL)
-    } else{
-      fluidRow(
-        column(12, p("Select the PCs to plot")),
-        column(4, uiOutput("pcs_plot_x")),
-        column(4,  uiOutput("pcs_plot_y")),
-        column(4, uiOutput("grouping_var")),
-        column(12, tags$hr())
-      )
+  # ----------------------- EigenFace --------------------------
+  observeEvent(input$dataset_btn_eig, {
+    values$check_img = TRUE
+    values$check_file = FALSE
+  })
+  observeEvent(input$previous_1, {
+    index1(max(index1() - 1, 1))
+  })
+  observeEvent(input$next_1, {
+    if (is.null(imgInput()) == FALSE) {
+      df <- imgInput()
+      df <- df$df
+      max_page <- as.numeric(ceiling(nrow(df) / 100))
+      index1(min(index1() + 1, max_page))
     }
   })
-  
-  imgInput <- reactive({
-    # if (is.null(values$check_img)) {
-    #   r <- NULL
-    #   return(r)
-    # }
-    # if(values$check_img == TRUE){
-    req(input$file_eig)
-    tryCatch({
-      df <- read.csv(
-        input$file_eig$datapath,
-        header = as.logical(input$header_eig),
-        sep = input$sep,
-        quote = input$quote,
-        stringsAsFactors = FALSE
-      )
-      df <- as.matrix(df)
-      img <- as.matrix(df[, 2:ncol(df)])
-      label <- as.matrix(df[, 1])
-      if (!as.logical(input$label_eig)) {
-        img <- as.matrix(df[, 1:(ncol(df) - 1)])
-        label <- as.matrix(df[, ncol(df)])
-      }
-      r <- list(df = df,
-                img = img,
-                label = label)
-    },
-    error = function(e) {
-      # return a safeError if a parsing error occurs
-      stop(safeError(e))
-    })
-    return(r)
-    # }else{
-    #   r <- NULL
-    #   return(r)}
-    
+  observeEvent(input$previous_2, {
+    index2(max(index2() - 1, 1))
   })
+  observeEvent(input$next_2, {
+    if (is.null(imgInput()) == FALSE) {
+      if (is.null(eigenFace()) == FALSE) {
+        pcaObject <- eigenFace()
+        pca_img <- pcaObject$eigenfaces
+        max_page <-
+          as.numeric(ceiling(ncol(pcaObject$eigenfaces) / 100))
+        index2(min(index2() + 1, max_page))
+      }
+      
+      
+    }
+  })
+  observeEvent(input$previous_3, {
+    index3(max(index3() - 1, 1))
+  })
+  observeEvent(input$next_3, {
+    if (is.null(imgInput()) == FALSE) {
+      if (is.null(eigenFace()) == FALSE) {
+        pcaObject <- eigenFace()
+        pca_img <- pcaObject$eigenfaces
+        max_page <-
+          as.numeric(ceiling(ncol(pcaObject$eigenfaces) / 100))
+        index3(min(index3() + 1, max_page))
+      }
+      
+      
+    }
+  })
+  # ====================================================================================
   
+  # ======================== Reactive Data ============================================
+  # ------------------------- PCA --------------------------------
   dataInput <- reactive({
     if (is.null(values$check_file)) {
       df <- NULL
@@ -121,16 +111,147 @@ Server <- function(input, output, session) {
       return(df)
     }
   })
-  
-  output$summary_verbatim <- renderPrint({
+  pcaObj <- reactive({
     if (is.null(dataInput())) {
-      return(invisible())
+      return(NULL)
     } else{
       dataset <- dataInput()
-      return(summary(dataset))
+      pca_result <-
+        pca(
+          dataset,
+          center = as.logical(input$center),
+          scale. = as.logical(input$scale.),
+          threshold_percent = input$threshold_percent,
+          showall = as.logical(input$showall)
+        )
+      # print(pca_result)
+      return(pca_result)
     }
   })
-  
+  pcaObjforPlot <- reactive({
+    if (is.null(dataInput())) {
+      return(NULL)
+    } else{
+      dataset <- dataInput()
+      pca_result <-
+        pca(
+          dataset,
+          center = as.logical(input$center),
+          scale. = as.logical(input$scale.),
+          threshold_percent = input$threshold_percent,
+          showall = TRUE
+        )
+      return(pca_result)
+    }
+  })
+  # ----------------------- EigenFace --------------------------
+  imgInput <- reactive({
+    req(input$file_eig)
+    tryCatch({
+      df <- read.csv(
+        input$file_eig$datapath,
+        header = as.logical(input$header_eig),
+        sep = input$sep,
+        quote = input$quote,
+        stringsAsFactors = FALSE
+      )
+      df <- as.matrix(df)
+      img <- as.matrix(df[, 2:ncol(df)])
+      label <- as.matrix(df[, 1])
+      if (!as.logical(input$label_eig)) {
+        img <- as.matrix(df[, 1:(ncol(df) - 1)])
+        label <- as.matrix(df[, ncol(df)])
+      }
+      r <- list(df = df,
+                img = img,
+                label = label)
+    },
+    error = function(e) {
+      # return a safeError if a parsing error occurs
+      stop(safeError(e))
+    })
+    return(r)
+  })
+  eigenFaceforPlot <- reactive({
+    if (is.null(imgInput())) {
+      return(NULL)
+    } else{
+      r <- imgInput()
+      df <- r$df
+      img <- r$img
+      label <- r$label
+      pca_result <-
+        pca_eigenfaces(
+          img,
+          center = if (is.null(input$center_img))
+            TRUE
+          else
+            as.logical(input$center_img),
+          scale. = if (is.null(input$scale._img))
+            FALSE
+          else
+            as.logical(input$scale._img),
+          showall = TRUE
+        )
+      return(pca_result)
+    }
+  })
+  eigenFace <- reactive({
+    if (is.null(imgInput())) {
+      return(NULL)
+    } else{
+      r <- imgInput()
+      df <- r$df
+      img <- r$img
+      label <- r$label
+      s <- 123
+      if (is.null(input$seed_input))
+        s <- 123
+      else
+        s <- input$seed_input
+      set.seed(s)
+      index = sort(sample(nrow(img), nrow(img) * input$training_percent /
+                            100))
+      train <- img[index,]
+      test <- img[-index,]
+      train_label <- label[index,]
+      test_label <- label[-index,]
+      pca_result <-
+        pca_eigenfaces(
+          train,
+          center = if (is.null(input$center_img))
+            TRUE
+          else
+            as.logical(input$center_img),
+          scale. = if (is.null(input$scale._img))
+            FALSE
+          else
+            as.logical(input$scale._img),
+          threshold_percent = if (is.null(input$select_threshold_percent_img))
+            90
+          else
+            input$select_threshold_percent_img ,
+          showall = FALSE
+        )
+      pca_result$train <- train
+      pca_result$test <- test
+      pca_result$index <- index
+      pca_result$train_label <- train_label
+      pca_result$test_label <- test_label
+      pca_result$new_train <-
+        data.frame(labels = train_label, data = pca_result$finalData)
+      data_new_test <-
+        scale(test, center = pca_result$center, scale = pca_result$scale) %*%
+        pca_result$eigenfaces
+      pca_result$new_test <-
+        data.frame(labels = test_label,
+                   data = data_new_test)
+      return(pca_result)
+    }
+  })
+  # ====================================================================================
+  # ======================== UI ============================================
+  # ------------------------- Both --------------------------------
   output$setting_tabcard <- renderUI({
     if (input$sidebar_menu == "pca") {
       bs4TabCard(
@@ -421,41 +542,66 @@ Server <- function(input, output, session) {
       )
     }
   })
-  
-  
-  # display a summary of the CSV contents
-  output$summary_plot <-  renderDataTable({
-    if (is.null(dataInput())) {
+  # ------------------------- PCA --------------------------------
+  output$select_pc_plot <- renderUI({
+    if (is.null(pcaObjforPlot())) {
       return(NULL)
     } else{
+      fluidRow(
+        column(12, p("Select the PCs to plot")),
+        column(4, uiOutput("pcs_plot_x")),
+        column(4,  uiOutput("pcs_plot_y")),
+        column(4, uiOutput("grouping_var")),
+        column(12, tags$hr())
+      )
+    }
+  })
+  output$grouping_var <- renderUI({
+    if (is.null(dataInput())) {
+      return(NULL)
+    }
+    else{
       dataset <- dataInput()
-      print_data <-
-        format(
-          psych::describe(dataset),
-          nsmall = 2,
-          digits = 3,
-          scientific = FALSE
-        )
-      return(t(print_data))
+      p("Select the grouping variable.")
+      selectInput(
+        inputId = "grouping_var",
+        label = "Grouping variable:",
+        choices = c("None", names(dataset))
+      )
     }
-  }, style = "bootstrap4")
-  
-  output$contents <- renderDataTable({
-    if (is.null(dataInput())) {
+  })
+  output$pcs_plot_x <- renderUI({
+    if (is.null(pcaObjforPlot())) {
       return(NULL)
     } else{
-      return(dataInput())
+      pcaObject <- pcaObjforPlot()
+      data <- pcaObject$finalData
+      selectInput(
+        inputId = "pcs_plot_x",
+        label = "X axis:",
+        choices = colnames(data),
+        selected = 'PC1'
+      )
     }
-  }, style = "bootstrap4")
-  # Downloadable csv of selected dataset ----
-  output$downloadData <- downloadHandler(
-    filename = function() {
-      paste(input$dataset, ".csv", sep = "")
-    },
-    content = function(file) {
-      write.csv(datasetInput(), file, row.names = FALSE)
+  })
+  output$pcs_plot_y <- renderUI({
+    if (is.null(pcaObjforPlot())) {
+      return(NULL)
+    } else{
+      pcaObject <- pcaObjforPlot()
+      data <- pcaObject$finalData
+      d <- colnames(data)
+      c <- d[-match(input$pcs_plot_x, colnames(data))]
+      # drop down selection
+      selectInput(
+        inputId = "pcs_plot_y",
+        label = "Y axis:",
+        choices = c,
+        selected = 'PC2'
+      )
     }
-  )
+    
+  })
   # Check boxes to choose columns
   output$choose_columns_biplot <- renderUI({
     if (is.null(dataInput())) {
@@ -488,18 +634,225 @@ Server <- function(input, output, session) {
       
     }
   })
-  # output$select_threshold_percent_img <- renderUI({
-  #   if (input$showall_img == FALSE) {
-  #     sliderInput(
-  #       "select_threshold_percent_img",
-  #       "Minimum Percentage:",
-  #       min = 1,
-  #       max = 100,
-  #       value = 90
-  #     )
+  # ----------------------- EigenFace --------------------------
+  output$previous_1 <- renderUI({
+    if (is.null(imgInput()) == FALSE) {
+      actionBttn(
+        inputId = "previous_1",
+        label = "Previous",
+        style = "simple",
+        color = "primary"
+      )
+    }
+  })
+  output$next_1 <- renderUI({
+    if (is.null(imgInput()) == FALSE) {
+      actionBttn(
+        inputId = "next_1",
+        label = "Next",
+        style = "simple",
+        color = "primary"
+      )
+    }
+  })
+  output$previous_2 <- renderUI({
+    if (is.null(imgInput()) == FALSE) {
+      if (is.null(eigenFace()) == FALSE) {
+        actionBttn(
+          inputId = "previous_2",
+          label = "Previous",
+          style = "simple",
+          color = "primary"
+        )
+      }
+    }
+  })
+  output$next_2 <- renderUI({
+    if (is.null(imgInput()) == FALSE) {
+      if (is.null(eigenFace()) == FALSE) {
+        actionBttn(
+          inputId = "next_2",
+          label = "Next",
+          style = "simple",
+          color = "primary"
+        )
+      }
+    }
+  })
+  output$previous_3 <- renderUI({
+    if (is.null(imgInput()) == FALSE) {
+      if (is.null(eigenFace()) == FALSE) {
+        actionBttn(
+          inputId = "previous_3",
+          label = "Previous",
+          style = "simple",
+          color = "primary"
+        )
+      }
+    }
+  })
+  output$next_3 <- renderUI({
+    if (is.null(imgInput()) == FALSE) {
+      if (is.null(eigenFace()) == FALSE) {
+        actionBttn(
+          inputId = "next_3",
+          label = "Next",
+          style = "simple",
+          color = "primary"
+        )
+      }
+    }
+  })
+  output$select_pic_no_train <- renderUI({
+    if (is.null(imgInput()) == FALSE) {
+      if (is.null(eigenFace()) == FALSE) {
+        pcaObj <- eigenFace()
+        index <- as.vector(pcaObj$index)
+        # print(index)
+        fluidRow(column(12, p("Please select picture no.#")),
+                 column(
+                   12,
+                   selectInput(
+                     inputId = "select_pic_no_train",
+                     label = "Picture No.#:",
+                     choices = index
+                   )
+                 ),
+                 column(12, tags$hr()))
+      }
+    }
+  })
+  output$select_pic_no_test <- renderUI({
+    if (is.null(imgInput()) == FALSE) {
+      r <- imgInput()
+      df <- r$df
+      img <- r$img
+      label <- r$label
+      if (is.null(eigenFace()) == FALSE) {
+        pcaObj <- eigenFace()
+        index <- as.vector(pcaObj$index)
+        no_test <- c(1:nrow(img))
+        no_test <- no_test[-index]
+        # print(index)
+        fluidRow(column(12, p(
+          "Please select picture no.# to recognize"
+        )),
+        column(
+          12,
+          selectInput(
+            inputId = "select_pic_no_test",
+            label = "Picture No.#:",
+            choices = no_test
+          )
+        ),
+        column(12, tags$hr()))
+      }
+    }
+  })
+  output$n_fold <- renderUI({
+    if (is.null(imgInput()) == FALSE) {
+      r <- imgInput()
+      df <- r$df
+      img <- r$img
+      label <- r$label
+      no_fold <- which(nrow(img) %% 1:20 == 0)[-1]
+      fluidRow(column(12, p(
+        "Please number of fold for n-fold cross validation."
+      )),
+      column(
+        12,
+        selectInput(
+          inputId = "n_fold",
+          label = "N-fold:",
+          choices = no_fold
+        )
+      ))
+      
+    }
+  })
+  output$n_repetition <- renderUI({
+    if (is.null(imgInput()) == FALSE) {
+      fluidRow(column(12, p(
+        "Please number of Repetition for evaluation."
+      )),
+      column(
+        12,
+        selectInput(
+          inputId = "n_repetition",
+          label = "Number of repetition:",
+          choices = 1:10
+        )
+      ))
+    }
+  })
+  # ====================================================================================
   
-  #   }
-  # })
+  # ======================== Output ============================================
+  # ------------------------- PCA --------------------------------
+  output$summary_verbatim <- renderPrint({
+    if (is.null(dataInput())) {
+      return(invisible())
+    } else{
+      dataset <- dataInput()
+      return(summary(dataset))
+    }
+  })
+  output$new_data_pca <- renderDataTable({
+    if (is.null(pcaObj())) {
+      return(NULL)
+    } else{
+      new_data <- pcaObj()
+      return(new_data$finalData)
+    }
+  }, style = "bootstrap4")
+  output$new_data_plot <- renderPlot({
+    if (is.null(pcaObj())) {
+      return(NULL)
+    } else{
+      pcaObject <- pcaObj()
+      data <- pcaObject$finalData
+      # print(data)
+      columns_biplot <- paste0("PC", seq_len(ncol(data)))
+      new_data_subset_biplot <- data[, columns_biplot, drop = FALSE]
+      ggpairs(new_data_subset_biplot)
+    }
+  })
+  output$summary_pca <- renderDataTable({
+    if (is.null(pcaObj())) {
+      return(NULL)
+    } else{
+      pcaObject <- pcaObj()
+      return(format(
+        pcaObject$summary,
+        nsmall = 2,
+        digits = 3,
+        scientific = FALSE
+      ))
+    }
+  }, style = "bootstrap4")
+  # display a summary of the CSV contents
+  output$summary_plot <-  renderDataTable({
+    if (is.null(dataInput())) {
+      return(NULL)
+    } else{
+      dataset <- dataInput()
+      print_data <-
+        format(
+          psych::describe(dataset),
+          nsmall = 2,
+          digits = 3,
+          scientific = FALSE
+        )
+      return(t(print_data))
+    }
+  }, style = "bootstrap4")
+  output$contents <- renderDataTable({
+    if (is.null(dataInput())) {
+      return(NULL)
+    } else{
+      return(dataInput())
+    }
+  }, style = "bootstrap4")
   # corr plot
   output$correlation <- renderPlot({
     if (is.null(dataInput())) {
@@ -520,127 +873,6 @@ Server <- function(input, output, session) {
     }
     
   })
-  
-  pcaObj <- reactive({
-    if (is.null(dataInput())) {
-      return(NULL)
-    } else{
-      dataset <- dataInput()
-      pca_result <-
-        pca(
-          dataset,
-          center = as.logical(input$center),
-          scale. = as.logical(input$scale.),
-          threshold_percent = input$threshold_percent,
-          showall = as.logical(input$showall)
-        )
-      # print(pca_result)
-      return(pca_result)
-    }
-  })
-  
-  pcaObjforPlot <- reactive({
-    if (is.null(dataInput())) {
-      return(NULL)
-    } else{
-      dataset <- dataInput()
-      pca_result <-
-        pca(
-          dataset,
-          center = as.logical(input$center),
-          scale. = as.logical(input$scale.),
-          threshold_percent = input$threshold_percent,
-          showall = TRUE
-        )
-      return(pca_result)
-    }
-  })
-  
-  output$new_data_pca <- renderDataTable({
-    if (is.null(pcaObj())) {
-      return(NULL)
-    } else{
-      new_data <- pcaObj()
-      return(new_data$finalData)
-    }
-  }, style = "bootstrap4")
-  
-  output$new_data_plot <- renderPlot({
-    if (is.null(pcaObj())) {
-      return(NULL)
-    } else{
-      pcaObject <- pcaObj()
-      data <- pcaObject$finalData
-      # print(data)
-      columns_biplot <- paste0("PC", seq_len(ncol(data)))
-      new_data_subset_biplot <- data[, columns_biplot, drop = FALSE]
-      ggpairs(new_data_subset_biplot)
-    }
-  })
-  
-  output$summary_pca <- renderDataTable({
-    if (is.null(pcaObj())) {
-      return(NULL)
-    } else{
-      pcaObject <- pcaObj()
-      return(format(
-        pcaObject$summary,
-        nsmall = 2,
-        digits = 3,
-        scientific = FALSE
-      ))
-    }
-  }, style = "bootstrap4")
-  
-  output$grouping_var <- renderUI({
-    if (is.null(dataInput())) {
-      return(NULL)
-    }
-    else{
-      dataset <- dataInput()
-      p("Select the grouping variable.")
-      selectInput(
-        inputId = "grouping_var",
-        label = "Grouping variable:",
-        choices = c("None", names(dataset))
-      )
-    }
-  })
-  
-  output$pcs_plot_x <- renderUI({
-    if (is.null(pcaObjforPlot())) {
-      return(NULL)
-    } else{
-      pcaObject <- pcaObjforPlot()
-      data <- pcaObject$finalData
-      selectInput(
-        inputId = "pcs_plot_x",
-        label = "X axis:",
-        choices = colnames(data),
-        selected = 'PC1'
-      )
-    }
-  })
-  
-  output$pcs_plot_y <- renderUI({
-    if (is.null(pcaObjforPlot())) {
-      return(NULL)
-    } else{
-      pcaObject <- pcaObjforPlot()
-      data <- pcaObject$finalData
-      d <- colnames(data)
-      c <- d[-match(input$pcs_plot_x, colnames(data))]
-      # drop down selection
-      selectInput(
-        inputId = "pcs_plot_y",
-        label = "Y axis:",
-        choices = c,
-        selected = 'PC2'
-      )
-    }
-    
-  })
-  
   output$var_plot <- renderPlot({
     if (is.null(dataInput())) {
       return(NULL)
@@ -675,7 +907,6 @@ Server <- function(input, output, session) {
       
     }
   })
-  
   output$pc_plot <- renderPlot({
     if (is.null(pcaObjforPlot())) {
       return(NULL)
@@ -740,133 +971,7 @@ Server <- function(input, output, session) {
       }
     }
   })
-  
-  output$previous_1 <- renderUI({
-    if (is.null(imgInput()) == FALSE) {
-      actionBttn(
-        inputId = "previous_1",
-        label = "Previous",
-        style = "simple",
-        color = "primary"
-      )
-    }
-  })
-  
-  output$next_1 <- renderUI({
-    if (is.null(imgInput()) == FALSE) {
-      actionBttn(
-        inputId = "next_1",
-        label = "Next",
-        style = "simple",
-        color = "primary"
-      )
-    }
-  })
-  
-  output$previous_2 <- renderUI({
-    if (is.null(imgInput()) == FALSE) {
-      if (is.null(eigenFace()) == FALSE) {
-        actionBttn(
-          inputId = "previous_2",
-          label = "Previous",
-          style = "simple",
-          color = "primary"
-        )
-      }
-    }
-  })
-  
-  output$next_2 <- renderUI({
-    if (is.null(imgInput()) == FALSE) {
-      if (is.null(eigenFace()) == FALSE) {
-        actionBttn(
-          inputId = "next_2",
-          label = "Next",
-          style = "simple",
-          color = "primary"
-        )
-      }
-    }
-  })
-  
-  output$previous_3 <- renderUI({
-    if (is.null(imgInput()) == FALSE) {
-      if (is.null(eigenFace()) == FALSE) {
-        actionBttn(
-          inputId = "previous_3",
-          label = "Previous",
-          style = "simple",
-          color = "primary"
-        )
-      }
-    }
-  })
-  
-  output$next_3 <- renderUI({
-    if (is.null(imgInput()) == FALSE) {
-      if (is.null(eigenFace()) == FALSE) {
-        actionBttn(
-          inputId = "next_3",
-          label = "Next",
-          style = "simple",
-          color = "primary"
-        )
-      }
-    }
-  })
-  
-  index1 <- reactiveVal(1)
-  
-  observeEvent(input$previous_1, {
-    index1(max(index1() - 1, 1))
-  })
-  observeEvent(input$next_1, {
-    if (is.null(imgInput()) == FALSE) {
-      df <- imgInput()
-      df <- df$df
-      max_page <- as.numeric(ceiling(nrow(df) / 100))
-      index1(min(index1() + 1, max_page))
-    }
-  })
-  
-  index2 <- reactiveVal(1)
-  
-  observeEvent(input$previous_2, {
-    index2(max(index2() - 1, 1))
-  })
-  observeEvent(input$next_2, {
-    if (is.null(imgInput()) == FALSE) {
-      if (is.null(eigenFace()) == FALSE) {
-        pcaObject <- eigenFace()
-        pca_img <- pcaObject$eigenfaces
-        max_page <-
-          as.numeric(ceiling(ncol(pcaObject$eigenfaces) / 100))
-        index2(min(index2() + 1, max_page))
-      }
-      
-      
-    }
-  })
-  
-  index3 <- reactiveVal(1)
-  
-  observeEvent(input$previous_3, {
-    index3(max(index3() - 1, 1))
-  })
-  observeEvent(input$next_3, {
-    if (is.null(imgInput()) == FALSE) {
-      if (is.null(eigenFace()) == FALSE) {
-        pcaObject <- eigenFace()
-        pca_img <- pcaObject$eigenfaces
-        max_page <-
-          as.numeric(ceiling(ncol(pcaObject$eigenfaces) / 100))
-        index3(min(index3() + 1, max_page))
-      }
-      
-      
-    }
-  })
-  
+  # ----------------------- EigenFace --------------------------
   output$pages1 <- renderText({
     if (is.null(imgInput()) == FALSE) {
       df <- imgInput()
@@ -902,7 +1007,6 @@ Server <- function(input, output, session) {
       }
     }
   })
-  
   output$imgInputData <- renderImage({
     if (is.null(imgInput())) {
       return(NULL)
@@ -946,90 +1050,6 @@ Server <- function(input, output, session) {
       )
     }
   }, deleteFile = TRUE)
-  
-  show_img <- function(x) {
-    image(x, col = grey(seq(0, 1, length = 256)))
-  }
-  
-  eigenFaceforPlot <- reactive({
-    if (is.null(imgInput())) {
-      return(NULL)
-    } else{
-      r <- imgInput()
-      df <- r$df
-      img <- r$img
-      label <- r$label
-      pca_result <-
-        pca_eigenfaces(
-          img,
-          center = if (is.null(input$center_img))
-            TRUE
-          else
-            as.logical(input$center_img),
-          scale. = if (is.null(input$scale._img))
-            FALSE
-          else
-            as.logical(input$scale._img),
-          showall = TRUE
-        )
-      return(pca_result)
-    }
-  })
-  
-  eigenFace <- reactive({
-    if (is.null(imgInput())) {
-      return(NULL)
-    } else{
-      r <- imgInput()
-      df <- r$df
-      img <- r$img
-      label <- r$label
-      s <- 123
-      if (is.null(input$seed_input))
-        s <- 123
-      else
-        s <- input$seed_input
-      set.seed(s)
-      index = sort(sample(nrow(img), nrow(img) * input$training_percent /
-                            100))
-      train <- img[index,]
-      test <- img[-index,]
-      train_label <- label[index,]
-      test_label <- label[-index,]
-      pca_result <-
-        pca_eigenfaces(
-          train,
-          center = if (is.null(input$center_img))
-            TRUE
-          else
-            as.logical(input$center_img),
-          scale. = if (is.null(input$scale._img))
-            FALSE
-          else
-            as.logical(input$scale._img),
-          threshold_percent = if (is.null(input$select_threshold_percent_img))
-            90
-          else
-            input$select_threshold_percent_img ,
-          showall = FALSE
-        )
-      pca_result$train <- train
-      pca_result$test <- test
-      pca_result$index <- index
-      pca_result$train_label <- train_label
-      pca_result$test_label <- test_label
-      pca_result$new_train <-
-        data.frame(labels = train_label, data = pca_result$finalData)
-      data_new_test <-
-        scale(test, center = pca_result$center, scale = pca_result$scale) %*%
-        pca_result$eigenfaces
-      pca_result$new_test <-
-        data.frame(labels = test_label,
-                   data = data_new_test)
-      return(pca_result)
-    }
-  })
-  
   output$cumvar_img_plot <- renderPlot({
     if (is.null(imgInput()) == FALSE) {
       r <- imgInput()
@@ -1052,7 +1072,6 @@ Server <- function(input, output, session) {
     }
     
   })
-  
   output$imgOutputTraining <- renderImage({
     if (is.null(imgInput())) {
       return(NULL)
@@ -1115,7 +1134,6 @@ Server <- function(input, output, session) {
       }
     }
   }, deleteFile = TRUE)
-  
   output$avg_face <- renderImage({
     if (is.null(imgInput())) {
       return(NULL)
@@ -1159,7 +1177,6 @@ Server <- function(input, output, session) {
       }
     }
   }, deleteFile = TRUE)
-  
   output$imgOutputEig <- renderImage({
     if (is.null(imgInput()) == FALSE) {
       r <- imgInput()
@@ -1211,94 +1228,6 @@ Server <- function(input, output, session) {
       }
     }
   }, deleteFile = TRUE)
-  
-  output$select_pic_no_train <- renderUI({
-    if (is.null(imgInput()) == FALSE) {
-      if (is.null(eigenFace()) == FALSE) {
-        pcaObj <- eigenFace()
-        index <- as.vector(pcaObj$index)
-        # print(index)
-        fluidRow(column(12, p("Please select picture no.#")),
-                 column(
-                   12,
-                   selectInput(
-                     inputId = "select_pic_no_train",
-                     label = "Picture No.#:",
-                     choices = index
-                   )
-                 ),
-                 column(12, tags$hr()))
-      }
-    }
-  })
-  
-  output$select_pic_no_test <- renderUI({
-    if (is.null(imgInput()) == FALSE) {
-      r <- imgInput()
-      df <- r$df
-      img <- r$img
-      label <- r$label
-      if (is.null(eigenFace()) == FALSE) {
-        pcaObj <- eigenFace()
-        index <- as.vector(pcaObj$index)
-        no_test <- c(1:nrow(img))
-        no_test <- no_test[-index]
-        # print(index)
-        fluidRow(column(12, p(
-          "Please select picture no.# to recognize"
-        )),
-        column(
-          12,
-          selectInput(
-            inputId = "select_pic_no_test",
-            label = "Picture No.#:",
-            choices = no_test
-          )
-        ),
-        column(12, tags$hr()))
-      }
-    }
-  })
-  
-  
-  output$n_fold <- renderUI({
-    if (is.null(imgInput()) == FALSE) {
-      r <- imgInput()
-      df <- r$df
-      img <- r$img
-      label <- r$label
-      no_fold <- which(nrow(img) %% 1:20 == 0)[-1]
-      fluidRow(column(12, p(
-        "Please number of fold for n-fold cross validation."
-      )),
-      column(
-        12,
-        selectInput(
-          inputId = "n_fold",
-          label = "N-fold:",
-          choices = no_fold
-        )
-      ))
-      
-    }
-  })
-  
-  output$n_repetition <- renderUI({
-    if (is.null(imgInput()) == FALSE) {
-      fluidRow(column(12, p(
-        "Please number of Repetition for evaluation."
-      )),
-      column(
-        12,
-        selectInput(
-          inputId = "n_repetition",
-          label = "Number of repetition:",
-          choices = 1:10
-        )
-      ))
-    }
-  })
-  
   output$projection <- renderPlot({
     if (is.null(imgInput()) == FALSE) {
       if (is.null(eigenFace()) == FALSE) {
@@ -1322,8 +1251,6 @@ Server <- function(input, output, session) {
       }
     }
   })
-  
-  
   output$classify_result <- renderDataTable({
     if (is.null(imgInput()) == FALSE) {
       if (is.null(eigenFace()) == FALSE) {
@@ -1341,7 +1268,6 @@ Server <- function(input, output, session) {
       }
     }
   })
-  
   output$recognize_result <- renderDataTable({
     if (is.null(imgInput()) == FALSE) {
       r <- imgInput()
@@ -1398,7 +1324,6 @@ Server <- function(input, output, session) {
       }
     }
   })
-  
   output$eva <- renderDataTable({
     if (is.null(imgInput()) == FALSE) {
       data <- imgInput()
@@ -1434,5 +1359,11 @@ Server <- function(input, output, session) {
       }
     }
   })
+  # ====================================================================================
   
+  # ======================== Function ============================================
+  # ------------------------- EigenFace --------------------------------
+  show_img <- function(x) {
+    image(x, col = grey(seq(0, 1, length = 256)))
+  }
 }
