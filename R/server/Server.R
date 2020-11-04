@@ -1,3 +1,4 @@
+sapply(list.files(pattern="[.]R$", path="R/server/function", full.names=TRUE), source);
 #Ref :https://github.com/benmarwick/Interactive_PCA_Explorer
 options(shiny.maxRequestSize = 30 * 1024 ^ 2)
 Server <- function(input, output, session) {
@@ -270,7 +271,7 @@ Server <- function(input, output, session) {
             selectInput(
               inputId = "dataset_pca",
               label = "Choose a dataset:",
-              choices = c("Please select", "rock", "pressure", "cars")
+              choices = c("Please select", "rock", "pressure", "cars", "mtcars")
             )
           ),
           column(
@@ -380,7 +381,7 @@ Server <- function(input, output, session) {
                 'Select features to obtains new data',
                 choices = c(
                   'Show all featurees' = TRUE,
-                  'Select the minimum percent of data to obtain the number of features' = FALSE
+                  'Select the minimum cumulative variance percent of data to obtain the number of features' = FALSE
                 ),
                 selected = FALSE
               ),
@@ -500,17 +501,8 @@ Server <- function(input, output, session) {
                 selected = FALSE
               ),
               p(
-                'Select the minimum percent of data to obtain the number of features'
+                'Select the minimum cumulative variance percent of data to obtain the number of features'
               ),
-              # radioButtons(
-              #   'showall_img',
-              #   'Select features to obtains new data',
-              #   choices = c(
-              #     'Show all featurees' = TRUE,
-              #     'Select the minimum percent of data to obtain the number of features' = FALSE
-              #   ),
-              #   selected = FALSE
-              # ),
               sliderInput(
                 "select_threshold_percent_img",
                 "Minimum Percentage:",
