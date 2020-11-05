@@ -1319,6 +1319,7 @@ Server <- function(input, output, session) {
   output$eva <- renderDataTable({
     if (is.null(imgInput()) == FALSE) {
       data <- imgInput()
+      img <- data$img
       if (!is.null(input$n_fold) &&
           !is.null(input$n_repetition) &&
           !is.null(input$seed_input) &&
