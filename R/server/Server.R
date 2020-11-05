@@ -1131,14 +1131,14 @@ Server <- function(input, output, session) {
       return(NULL)
     } else{
       r <- imgInput()
+      img <- r$img
       
       if (is.null(eigenFace())) {
         return(NULL)
       } else{
         pcaObject <- eigenFace()
         avf <- pcaObject$center
-        
-        
+
         # A temp file to save the output.
         # This file will be removed later by renderImage
         outfile <- tempfile(fileext = '.png')
