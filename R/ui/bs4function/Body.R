@@ -43,11 +43,6 @@ Body <- function() {
             shiny::div(plotOutput("correlation"))
           ),
           bs4TabPanel(
-            tabName = "Summary New Data From PCA",
-            p("Here is the summary the new data from the PCA function"),
-            shiny::div(DT::dataTableOutput("summary_pca"))
-          ),
-          bs4TabPanel(
             tabName = "Bar Plot of The Variances",
             p(
               "The bar plot shows the variances of each principal component, and the cumulative variance explained by each principal component (% percentage) "
@@ -63,13 +58,18 @@ Body <- function() {
           bs4TabPanel(
             tabName = "New Data From PCA",
             p(
-              "You can select the percentage of variance at \"PCA setting tab\" (default is 90%)"
+              "You can select the percentage of variance at \"PCA settings tab\" (default is 90%)"
             ),
             p("Here is the new data from the PCA function"),
             shiny::div(DT::dataTableOutput("new_data_pca"))
           ),
           bs4TabPanel(
-            tabName = "Correlation Plot of New Data From PCA ",
+            tabName = "Summary New Data From PCA",
+            p("Here is the summary the new data from the PCA function"),
+            shiny::div(DT::dataTableOutput("summary_pca"))
+          ),
+          bs4TabPanel(
+            tabName = "Correlation Plot of New Data From PCA",
             p("Here is the new data from the PCA function Plot"),
             shiny::div(plotOutput("new_data_plot"))
           )

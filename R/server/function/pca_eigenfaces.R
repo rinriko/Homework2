@@ -1,5 +1,12 @@
 # Ref: https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=628712&casa_token=9A9Ef7E32W8AAAAA:kbwv6a5cUnKB3wgyWaE62vXhdSnmuz8uNS5WOha4guH6uyKsQ8zPvpfgHnuLgD0FKJIYnwMW&tag=1
 # Ref: http://www.scholarpedia.org/article/Eigenfaces
+# Ref: http://www.vision.jhu.edu/teaching/vision08/Handouts/case_study_pca1.pdf
+# Ref: https://www.face-rec.org/algorithms/PCA/jcn.pdf
+# Ref: https://www.geeksforgeeks.org/ml-face-recognition-using-eigenfaces-pca-algorithm/
+
+
+
+
 pca_eigenfaces <- function(data,
                            center = TRUE,
                            scale. = FALSE,
@@ -31,7 +38,6 @@ pca_eigenfaces <- function(data,
     round(cumsum(Eigenvalues) / sum(Eigenvalues) * 100, digits = 2)
   ## we get rank at least one even for a 0 matrix.
   rank <- as.numeric(min(which(percentage >= threshold_percent)))
-  Eigenfaces <- Eigenvectors
   scaling    <-
     diag(Eigenvalues ^ (-1 / 2)) / (sqrt(nrow(scaled) - 1))
   Eigenfaces <- t(scaled) %*% Eigenvectors %*% scaling
