@@ -12,6 +12,11 @@ Sidebar <- function() {
            tabName = "eig_face",
            text = "Eigen faces",
            icon = "grin-beam"
+         ),
+         bs4SidebarMenuItem(
+           tabName = "document",
+           text = "Document",
+           icon = "file"
          )
        )
      )

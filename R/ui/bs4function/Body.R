@@ -188,6 +188,10 @@ Body <- function() {
             shiny::div(DT::dataTableOutput("eva"))
           )
         )
+      ),
+      bs4TabItem(
+        tabName = "document",
+        htmlOutput("doc")
       )
     )
   )

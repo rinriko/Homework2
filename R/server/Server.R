@@ -534,6 +534,10 @@ Server <- function(input, output, session) {
       )
     }
   })
+  getPage<-function() {
+      return(includeHTML("Report.html"))
+  }
+  output$doc<-renderUI({getPage()})
   # ------------------------- PCA --------------------------------
   output$select_pc_plot <- renderUI({
     if (is.null(pcaObjforPlot())) {
