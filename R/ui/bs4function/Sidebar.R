@@ -10,7 +10,7 @@ Sidebar <- function() {
          ),
          bs4SidebarMenuItem(
            tabName = "eig_face",
-           text = "Eigen faces",
+           text = "Image Classification with Eigenface",
            icon = "grin-beam"
          )
         #  ,
