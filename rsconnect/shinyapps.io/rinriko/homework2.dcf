@@ -5,8 +5,8 @@ account: rinriko
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 3164984
-bundleId: 3822343
+bundleId: 3822491
 url: https://rinriko.shinyapps.io/homework2/
-when: 1604556767.04182
+when: 1604558295.63034
 asMultiple: FALSE
 asStatic: FALSE

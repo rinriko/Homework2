@@ -6,10 +6,11 @@ Homework2
 3. [Download project](#download-project)
 4. [Set-up project](#set-up-project)
 5. [Run project](#run-project)
-6. [Help](#help)
+6. [Dataset](#dataset)
+7. [How to use](#howtouse)
 
 ## <a name="demo"></a> Demo
-Go to this [link](https://rinriko.shinyapps.io/homework2/_w_8caaefad/).
+Go to this [link](https://rinriko.shinyapps.io/homework2/).
 
 ## <a name="install-rstudio"></a> Install Rstudio
 1. Go to this [link](https://rstudio.com/products/rstudio/download/).
@@ -47,5 +48,14 @@ Note: If Git is not installed, please complete the following [instructions](http
 2. Open file app.R of this project.
 3. Click "Run App" button at the top right corner.
 
+## <a name="dataset"></a> Dataset
 
+- Dataset for PCA are provided in folder [/Dataset/pca](https://github.com/rinriko/Homework2/tree/main/Dataset/pca)
 
+- Dataset for Image Classification with Eigenface are provided in folder [/Dataset/eigenfaces](https://github.com/rinriko/Homework2/tree/main/Dataset/eigenfaces)
+
+## <a name="howtouse"></a> How to use
+Start on the first (left-most) tab to select a feature between PCA and Image Classification with Eigenface. Then, chose the dataset or upload your CSV file, then click on each tab, in order from left to right, to see the results.
+
+## <a name="documeent"></a> Documeent
+Here is a [link for document](https://htmlpreview.github.io/?https://github.com/rinriko/Homework2/blob/main/R/ui/html/report.html)
