@@ -535,7 +535,7 @@ Server <- function(input, output, session) {
     }
   })
   getPage<-function() {
-      return(includeHTML("Report.html"))
+      return(includeHTML("./R/ui/html/report.html"))
   }
   output$doc<-renderUI({getPage()})
   # ------------------------- PCA --------------------------------
